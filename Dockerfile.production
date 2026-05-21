@@ -8,7 +8,7 @@ FROM instructure/ruby-passenger:$RUBY-jammy
 LABEL maintainer="Instructure"
 
 ARG RUBY
-ARG POSTGRES_CLIENT=14
+ARG POSTGRES_CLIENT=12
 ENV APP_HOME /usr/src/app/
 ENV RAILS_ENV production
 ENV SASS_STYLE compressed
@@ -33,12 +33,11 @@ RUN mkdir -p /etc/apt/keyrings \
   && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
   && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
   && printf 'path-exclude /usr/share/doc/*\npath-exclude /usr/share/man/*' > /etc/dpkg/dpkg.cfg.d/01_nodoc \
-  && echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-  && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && add-apt-repository ppa:git-core/ppa -ny \
-  && apt-get update -qq \
-  && apt-get install -qqy --no-install-recommends \
+  && apt-get update \
+  && apt-get install -y --fix-broken --no-install-recommends \
        nodejs \
+  && apt-get install -y --fix-broken --no-install-recommends \
        libxmlsec1-dev \
        python3-lxml \
        python-is-python3 \
@@ -49,9 +48,9 @@ RUN mkdir -p /etc/apt/keyrings \
        tzdata \
        unzip \
        pbzip2 \
-       \
        git \
        build-essential \
+  && npm install -g yarn \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /home/docker/.gem/ruby/$RUBY_MAJOR.0
 
